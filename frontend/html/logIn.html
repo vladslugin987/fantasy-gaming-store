@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+        MY STORE
+    </title>
+    <!-- Importing the css file-->
+    <link rel="stylesheet" href="../css/styles.css">
+    <!-- Importing the Oswald and the Zen Dots font -->
+    <link href="https://fonts.googleapis.com/css2?family=Oswald&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Dots&display=swap" rel="stylesheet">
+    <!-- Importing the javascript file-->
+    <script src="../js/scripts.js"></script>
+</head>
+<body class="logInBody">
+     <!-- Navigation Bar-->
+     <nav>
+        <a href="home.html">Home</a>
+        <a href="logIn.html"> Log In</a>
+        <a href="about.html">About Us</a>
+        <a href="contact.html">Contact Us</a>
+    </nav>
+    <center>
+        <div class="container" id="container">
+            <main>
+                <div class="heading">
+                    <h1>
+                        Join our Community!
+                    </h1>
+                </div>
+                We will be happy to welcome you in our nerdy community. Joining us will 
+                have several benefits for you. You can subscribe to our newsletter and you 
+                will receive a $10 giftcard annualy on your birthday. Futhermore we implemented
+                a scoreboard for the snake game on our "About Us" page to bring joy and happiness to
+                our gamer community.
+                <br>
+                <div class="errorMessage" id="errorMessage">
+                    <p>Please fill in the required fields.</p>
+                </div>
+
+                <input type="email" id="textbox1" placeholder="Please enter your email-address" required>
+                <br>
+
+                <input type="password" id="textbox2" placeholder="Password" required>
+                <br>
+                <button onclick="logIn()">Log In</button>
+                <div class="thankYouMessage" id="logInMessage">
+                    <h1>Welcome back!</h1>
+                </div>
+                <br>
+                You don’t have an account yet? <button class="textButton"> Register now!</button>
+                <br>
+              
+            </main>
+        </div>
+    </center>
+
+    <footer class="footerWhite">
+        2024 Sofie Halbedl. All rights reserved.
+    </footer>
+</body>
+
+</html>

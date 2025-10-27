@@ -1,0 +1,241 @@
+/*style if the elements in the navigation bar*/
+a {
+    font-family: 'Oswald', sans-serif;
+    padding: 10px;
+    font-size: large;
+    color: black;
+}
+
+/*Design of the navigation bar*/
+nav {
+    background-color: white;
+    margin-left: 70px;
+    margin-right: 70px;
+}
+
+/* I will use several design for the body to have different backgrounds*/
+
+/*Desing of the homepage-body*/
+.homeBody {
+    background-image: url(https://static0.gamerantimages.com/wordpress/wp-content/uploads/2024/02/ff7-rebirth-cloud-sephiroth-and-zack.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100%;
+    width: auto;
+    overflow: hidden;
+}
+
+.aboutBody {
+    background-size: cover;
+    overflow: hidden;
+    background-repeat: no-repeat;
+    height: 100%;
+    width: auto;
+    background-image: url(https://wallpapercat.com/w/full/f/1/f/17913-3840x2160-desktop-4k-kingdom-hearts-wallpaper-image.jpg);
+}
+
+.contactBody {
+    background-size: cover;
+    overflow: hidden;
+    background-repeat: no-repeat;
+    height: 100%;
+    width: auto;
+    object-position: center;
+    background-image: url(https://www.gamewallpapers.com/wallpapers_slechte_compressie/01wallpapers/wallpaper_nier_automata_01_1920x1080.jpg);
+}
+
+.logInBody {
+    background-size: cover;
+    overflow: hidden;
+    background-repeat: no-repeat;
+    height: 100%;
+    width: auto;
+    background-image: url(https://img1.wallspic.com/previews/1/2/0/6/6/166021/166021-ilya_kuvshinov_twewy-the_world_ends_with_you-neo_the_world_ends_with_you-illustration-art-x750.jpg);
+
+}
+
+/*heading design with different font*/
+.heading {
+    align-items: center;
+    background-color: transparent;
+    color: black;
+    font-size: x-large;
+    font-family: 'Zen Dots';
+
+}
+
+/*manages the size of the main element*/
+.container {
+    margin-top: 20px;
+    margin-left: 70px;
+    margin-right: 70px;
+
+    display: block;
+    /*container gets visible if button is clicked*/
+    height: calc(100vh - 100px);
+    opacity: 0;
+    /*invisible*/
+    /*animation */
+    transform: translateY(100%);
+    transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+    overflow-y: auto;
+
+
+}
+
+.container-visible {
+    opacity: 1;
+    /* fully visible*/
+    transform: translateY(0);
+}
+
+
+/* background design */
+main {
+
+    background-color: white;
+    font-family: 'Oswald', sans-serif;
+    color: black;
+    font-size: large;
+    padding: 10px;
+}
+
+/* display for the product list that makes sure the elements are properly aligned*/
+section {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.product {
+    position: relative;
+    width: calc(33.33% - 20px);
+    /* Each product takes up one third of the container width, minus the gap */
+    box-sizing: border-box;
+    /* Ensures padding and margins don't affect the width */
+    padding: 15px;
+    text-align: center;
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.myImg {
+    width: 100%;
+    /* Ensure the image takes the full width of the product container */
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+
+
+.image-placeholder {
+    height: 280px;
+    width: 100%;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.image-placeholder:hover {
+    transform: scale(1.05);
+}
+
+/*# to say it's an elemt with an specific id*/
+#board {
+    display: block;
+    margin: 0 auto;
+    padding-top: 30px;
+    padding-bottom: 10px;
+}
+
+#textbox1 {
+    font-size: small;
+    font-family: 'Oswald', 'sans-serif';
+    color: black;
+    margin-top: 40px;
+    width: 25%;
+}
+#textbox2 {
+    font-size: small;
+    font-family: 'Oswald', 'sans-serif';
+    color: black;
+    margin-top: 40px;
+    width: 25%;
+}
+#textbox3 {
+    font-size: small;
+    font-family: 'Oswald', 'sans-serif';
+    color: black;
+    margin-top: 40px;
+    width: 25%;
+}
+
+.errorMessage{
+    font-size: small;
+    font-family: 'Oswald', 'sans-serif';
+    display: none;
+    padding: 8px;
+    color:red;
+}
+
+.thankYouMessage{
+     
+    font-family: 'Oswald', 'sans-serif';
+    font-size: x-large;
+    color: black;
+    background-color: white;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    display: none;
+}
+
+button {
+    color: white;
+    background-color: black;
+    font-family: 'Oswald', 'sans-serif';
+    font-size: small;
+    margin-top: 20px;
+    padding: 8px;
+    border-radius: 10px;
+}
+
+.textButton{
+    color: black;
+    background-color: transparent;
+    font-family: 'Oswald', 'sans-serif';
+    font-size: large;
+    margin-top: 20px;
+    padding-bottom: 8px;
+    border: none;
+    text-decoration: underline;
+
+}
+
+footer {
+    background-color: transparent;
+    font-family: 'Oswald', 'sans-serif';
+    text-align: center;
+    font-size: x-small;
+    padding-top: 20px;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+.footerWhite {
+    background-color: transparent;
+    font-family: 'Oswald', 'sans-serif';
+    text-align: center;
+    font-size: x-small;
+    padding-top: 20px;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    color: white;
+
+}
