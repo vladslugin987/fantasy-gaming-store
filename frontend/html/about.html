@@ -37,7 +37,28 @@
                     digital world, there's always room for fun and games.</p>
                 <p>Once you scroll down and use one of your keyboard’s arrow keys, the game will start.</p>
                 <p>Happy gaming, happy shopping, and may your snake never run into the walls!</p>
-                <canvas id="board" aria-label="Snake game board"></canvas>
+                <div id="snake-game">
+                    <div id="snake-play-area">
+                        <canvas id="board" aria-label="Snake game board"></canvas>
+                    </div>
+                    <div class="snake-scoreboard" id="scoreboardSection">
+                        <h2 class="scoreboard-heading">Snake Scoreboard</h2>
+                        <p class="scoreboard-status" id="currentScore">Current score: 0</p>
+                        <p class="scoreboard-empty" id="scoreboardEmptyState">No high scores yet. Be the first to set one!</p>
+                        <ol class="scoreboard-list is-hidden" id="scoreboardList"></ol>
+                        <form class="scoreboard-form is-hidden" id="scoreboardForm">
+                            <label class="scoreboard-label" for="scoreboardName">Enter your nickname to save the score:</label>
+                            <input class="scoreboard-input" type="text" id="scoreboardName" name="scoreboardName"
+                                maxlength="20" autocomplete="nickname" required>
+                            <div class="scoreboard-actions">
+                                <button type="submit">Save score</button>
+                            </div>
+                        </form>
+                        <div class="scoreboard-actions">
+                            <button type="button" class="is-hidden" id="playAgainButton">Play again</button>
+                        </div>
+                    </div>
+                </div>
             </main>
         </div>
     </center>

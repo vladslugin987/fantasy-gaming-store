@@ -11,12 +11,6 @@
         }, 1000);
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
-        SnakeGame.init();
-        ContactForm.init();
-        LoginForm.init();
-    });
-
     const toggleInputError = (field, hasError) => {
         if (!field) {
             return;
@@ -54,6 +48,241 @@
         element.classList.add('is-hidden');
     };
 
+    const Scoreboard = (() => {
+        const storageKey = 'snakeScoreboard';
+        const maxEntries = 10;
+
+        let container;
+        let listElement;
+        let emptyStateElement;
+        let formElement;
+        let nameInput;
+        let playAgainButton;
+        let playAgainContainer;
+        let scoreLabel;
+        let pendingScore = null;
+        let restartHandler = () => {};
+
+        const init = () => {
+            container = document.getElementById('scoreboardSection');
+            if (!container) {
+                return;
+            }
+
+            listElement = document.getElementById('scoreboardList');
+            emptyStateElement = document.getElementById('scoreboardEmptyState');
+            formElement = document.getElementById('scoreboardForm');
+            nameInput = document.getElementById('scoreboardName');
+            playAgainButton = document.getElementById('playAgainButton');
+            playAgainContainer = playAgainButton ? playAgainButton.parentElement : null;
+            scoreLabel = document.getElementById('currentScore');
+
+            renderList(loadScores());
+
+            if (scoreLabel) {
+                scoreLabel.textContent = 'Current score: 0';
+            }
+
+            if (formElement) {
+                hideElement(formElement);
+                formElement.addEventListener('submit', handleSubmit);
+            }
+
+            if (nameInput) {
+                nameInput.addEventListener('input', () => toggleInputError(nameInput, false));
+            }
+
+            if (playAgainButton) {
+                hideElement(playAgainButton);
+                if (playAgainContainer) {
+                    hideElement(playAgainContainer);
+                }
+                playAgainButton.addEventListener('click', () => {
+                    clearPrompt();
+                    if (typeof restartHandler === 'function') {
+                        restartHandler();
+                    }
+                });
+            }
+        };
+
+        const handleSubmit = (event) => {
+            event.preventDefault();
+
+            if (!formElement) {
+                return;
+            }
+
+            const name = (nameInput?.value ?? '').trim();
+            if (!name) {
+                toggleInputError(nameInput, true);
+                return;
+            }
+
+            if (pendingScore === null) {
+                return;
+            }
+
+            persistScore({
+                name,
+                score: pendingScore,
+                timestamp: Date.now(),
+            });
+
+            renderList(loadScores());
+            formElement.reset();
+            clearPrompt();
+
+            if (typeof restartHandler === 'function') {
+                restartHandler();
+            }
+        };
+
+        const clearPrompt = () => {
+            pendingScore = null;
+
+            if (formElement) {
+                hideElement(formElement);
+            }
+
+            if (playAgainButton) {
+                hideElement(playAgainButton);
+            }
+
+            if (playAgainContainer) {
+                hideElement(playAgainContainer);
+            }
+
+            if (nameInput) {
+                toggleInputError(nameInput, false);
+            }
+        };
+
+        const handleGameOver = (score) => {
+            if (!container) {
+                return false;
+            }
+
+            pendingScore = score;
+
+            if (scoreLabel) {
+                scoreLabel.textContent = `Final score: ${score}`;
+            }
+
+            if (formElement) {
+                showElement(formElement);
+            }
+
+            if (playAgainButton) {
+                showElement(playAgainButton);
+            }
+
+            if (playAgainContainer) {
+                showElement(playAgainContainer);
+            }
+
+            if (nameInput) {
+                nameInput.value = '';
+                toggleInputError(nameInput, false);
+                window.requestAnimationFrame(() => nameInput.focus());
+            }
+
+            return true;
+        };
+
+        const updateCurrentScore = (score) => {
+            if (scoreLabel) {
+                scoreLabel.textContent = `Current score: ${score}`;
+            }
+        };
+
+        const registerRestartHandler = (handler) => {
+            restartHandler = handler;
+        };
+
+        const persistScore = (entry) => {
+            const scores = loadScores();
+            scores.push({
+                name: entry.name,
+                score: entry.score,
+                timestamp: entry.timestamp,
+            });
+            scores.sort((a, b) => {
+                if (b.score !== a.score) {
+                    return b.score - a.score;
+                }
+                return a.timestamp - b.timestamp;
+            });
+            saveScores(scores.slice(0, maxEntries));
+        };
+
+        const renderList = (scores) => {
+            if (!listElement) {
+                return;
+            }
+
+            listElement.innerHTML = '';
+
+            if (!scores.length) {
+                hideElement(listElement);
+                if (emptyStateElement) {
+                    emptyStateElement.classList.remove('is-hidden');
+                }
+                return;
+            }
+
+            showElement(listElement);
+            if (emptyStateElement) {
+                emptyStateElement.classList.add('is-hidden');
+            }
+
+            scores.forEach(({ name, score }) => {
+                const item = document.createElement('li');
+                item.textContent = `${name} — ${score}`;
+                listElement.appendChild(item);
+            });
+        };
+
+        const loadScores = () => {
+            try {
+                const raw = window.localStorage.getItem(storageKey);
+                if (!raw) {
+                    return [];
+                }
+
+                const parsed = JSON.parse(raw);
+                if (!Array.isArray(parsed)) {
+                    return [];
+                }
+
+                return parsed
+                    .filter((entry) => entry && typeof entry.name === 'string' && typeof entry.score === 'number')
+                    .map((entry) => ({
+                        name: entry.name,
+                        score: entry.score,
+                        timestamp: typeof entry.timestamp === 'number' ? entry.timestamp : Date.now(),
+                    }));
+            } catch {
+                return [];
+            }
+        };
+
+        const saveScores = (scores) => {
+            try {
+                window.localStorage.setItem(storageKey, JSON.stringify(scores));
+            } catch {
+                // Ignore storage failures silently to keep the flow smooth.
+            }
+        };
+
+        return {
+            init,
+            handleGameOver,
+            registerRestartHandler,
+            updateCurrentScore,
+        };
+    })();
+
     const SnakeGame = (() => {
         const config = {
             blockSize: 25,
@@ -69,6 +298,8 @@
         let body;
         let food;
         let gameOver;
+        let score;
+        let updateTimer;
 
         const init = () => {
             canvas = document.getElementById('board');
@@ -82,8 +313,12 @@
 
             resetState();
             placeFood();
+            update();
             document.addEventListener('keydown', handleInput, { passive: false });
-            window.setInterval(update, 1000 / config.speed);
+            if (!updateTimer) {
+                updateTimer = window.setInterval(update, 1000 / config.speed);
+            }
+            Scoreboard.registerRestartHandler(restart);
         };
 
         const resetState = () => {
@@ -92,6 +327,8 @@
             body = [];
             food = { x: 0, y: 0 };
             gameOver = false;
+            score = 0;
+            Scoreboard.updateCurrentScore(score);
         };
 
         const update = () => {
@@ -122,6 +359,8 @@
         const handleFoodCollision = () => {
             if (head.x === food.x && head.y === food.y) {
                 body.push([food.x, food.y]);
+                score += 1;
+                Scoreboard.updateCurrentScore(score);
                 placeFood();
             }
         };
@@ -152,7 +391,10 @@
         const evaluateGameState = () => {
             if (isOutOfBounds(head) || isSelfCollision()) {
                 gameOver = true;
-                window.alert('Game Over');
+                const handled = Scoreboard.handleGameOver(score);
+                if (!handled) {
+                    window.alert('Game Over');
+                }
             }
         };
 
@@ -207,6 +449,12 @@
         const placeFood = () => {
             food.x = Math.floor(Math.random() * config.columns) * config.blockSize;
             food.y = Math.floor(Math.random() * config.rows) * config.blockSize;
+        };
+
+        const restart = () => {
+            resetState();
+            placeFood();
+            update();
         };
 
         return { init };
@@ -343,4 +591,11 @@
 
         return { init };
     })();
+
+    document.addEventListener('DOMContentLoaded', () => {
+        Scoreboard.init();
+        SnakeGame.init();
+        ContactForm.init();
+        LoginForm.init();
+    });
 })();
