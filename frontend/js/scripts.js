@@ -1,206 +1,346 @@
-window.addEventListener('load', function () {
-    // Delay for loading the container on the homepage only
-    setTimeout(function () {
-        const container = document.getElementById('container');
-        if (container) {
-            container.classList.add('container-visible'); // Container wird sichtbar
+(() => {
+    const ARROW_KEYS = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+
+    window.addEventListener('load', () => {
+        // Delay the container reveal to allow background assets to load smoothly.
+        window.setTimeout(() => {
+            const container = document.getElementById('container');
+            if (container) {
+                container.classList.add('container-visible');
+            }
+        }, 1000);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        SnakeGame.init();
+        ContactForm.init();
+        LoginForm.init();
+    });
+
+    const toggleInputError = (field, hasError) => {
+        if (!field) {
+            return;
         }
-    }, 1000); // 1000ms = 1s
+        field.classList.toggle('input-error', hasError);
+    };
 
-});
-
-//snake game
-
-//board
-var blockSize = 25;
-var rows = 18;
-var columns = 18;
-var board;
-var context;
-
-//snake head
-
-var snakeX = blockSize * 5;
-var snakeY = blockSize * 5;
-
-var velocityX = 0;
-var velocityY = 0;
-
-var snakeBody = [];
-
-//food
-var foodX
-var foodY
-
-var gameOver = false;
-
-window.onload = function () {
-    // makes sure an exeption is not thrown because board is null on the other pages
-    if (window.location.href.includes("about")) {
-        board = document.getElementById("board");
-        board.height = rows * blockSize; //one block is one square, so we need 20 squares in height and length
-        board.width = columns * blockSize;
-        context = board.getContext("2d") //Used for drawing on the board
-
-        placeFood();
-        document.addEventListener("keyup", changeDirection)
-        //update(); it is needed to call update several times a second to refresg the canvas
-        setInterval(update, 1000 / 10); // 100 milliseconds
-
-    }
-
-    //this clears the textboxes on the Contact Us page
-    if (window.location.href.includes("contact")) {
-        document.getElementById("textbox1").value = "";
-        document.getElementById("textbox2").value = "";
-        document.getElementById("textbox3").value = "";
-
-    }
-    if (window.location.href.includes("logIn")) {
-        document.getElementById("textbox1").value = "";
-        document.getElementById("textbox2").value = "";
-    }
-}
-
-function update() {
-    if (gameOver) {
-        return;
-    }
-
-    // reload the canvas every 100ms because the color doesnt work otherwise
-    context.clearRect(0, 0, board.width, board.height);
-    context.fillStyle = "black";
-    context.fillRect(0, 0, board.width, board.height);
-
-    context.fillStyle = "red";
-    context.fillRect(foodX, foodY, blockSize, blockSize); // Draw food
-
-    // Check if snake eats the food
-    if (snakeX == foodX && snakeY == foodY) {
-        snakeBody.push([foodX, foodY]); // Add a segment to the body
-        placeFood();
-    }
-
-    // Move the snake's body
-    for (let i = snakeBody.length - 1; i > 0; i--) {
-        snakeBody[i] = snakeBody[i - 1]; // Shift each segment of the body
-    }
-    // new head at the beginning
-    if (snakeBody.length) {
-        snakeBody[0] = [snakeX, snakeY];
-    }
-
-    // Move the snake's head
-    snakeX += velocityX * blockSize;
-    snakeY += velocityY * blockSize;
-
-    // Draw snake's head
-    context.fillStyle = "lime";
-    context.fillRect(snakeX, snakeY, blockSize, blockSize);
-
-    // Draw the body
-    for (let i = 0; i < snakeBody.length; i++) {
-        context.fillRect(snakeBody[i][0], snakeBody[i][1], blockSize, blockSize);
-    }
-
-    //game over conditions
-
-    // collision with walls
-    if (snakeX < 0 || snakeX >= columns * blockSize || snakeY < 0 || snakeY >= rows * blockSize) {
-        gameOver = true;
-        alert("Game Over");
-    }
-
-    // collision with itself
-    for (let i = 0; i < snakeBody.length; i++) {
-        if (snakeX == snakeBody[i][0] && snakeY == snakeBody[i][1]) {
-            gameOver = true;
-            alert("Game Over");
+    const showElement = (element) => {
+        if (!element) {
+            return;
         }
-    }
-}
+        element.classList.remove('is-hidden');
+    };
 
-// trigger for movement are the arrow keys
-function changeDirection(e) {
+    const hideElement = (element) => {
+        if (!element) {
+            return;
+        }
+        element.classList.add('is-hidden');
+    };
 
-    e.preventDefault(); //prevets scrolling with the arrow keys
+    const showMessage = (element) => {
+        if (!element) {
+            return;
+        }
+        element.classList.remove('is-hidden');
+        element.classList.add('is-visible');
+    };
 
-    if (e.code == "ArrowUp" && velocityY != 1) {
-        velocityX = 0;
-        velocityY = -1;
-    }
-    else if (e.code == "ArrowDown" && velocityY != -1) {
-        velocityX = 0;
-        velocityY = 1;
-    }
-    else if (e.code == "ArrowRight" && velocityX != -1) {
-        velocityX = 1;
-        velocityY = 0;
-    }
-    else if (e.code == "ArrowLeft" && velocityX != -1) {
-        velocityX = -1;
-        velocityY = 0;
-    }
+    const hideMessage = (element) => {
+        if (!element) {
+            return;
+        }
+        element.classList.remove('is-visible');
+        element.classList.add('is-hidden');
+    };
 
-}
-//place good at random position
-function placeFood() {
+    const SnakeGame = (() => {
+        const config = {
+            blockSize: 25,
+            rows: 18,
+            columns: 18,
+            speed: 10,
+        };
 
-    foodX = Math.floor(Math.random() * columns) * blockSize;
-    foodY = Math.floor(Math.random() * columns) * blockSize;
-}
+        let canvas;
+        let context;
+        let head;
+        let velocity;
+        let body;
+        let food;
+        let gameOver;
 
-//function for sending message
+        const init = () => {
+            canvas = document.getElementById('board');
+            if (!canvas) {
+                return;
+            }
 
-function sendMessage() {
+            context = canvas.getContext('2d');
+            canvas.height = config.rows * config.blockSize;
+            canvas.width = config.columns * config.blockSize;
 
-    //check if required fields are not empty
-    if (document.getElementById("textbox1").value == "" ||
-        document.getElementById("textbox3").value == "") {
-        document.getElementById("textbox1").style.borderColor = "red";
-        document.getElementById("textbox2").style.borderColor = "red";
-        document.getElementById("textbox3").style.borderColor = "red";
+            resetState();
+            placeFood();
+            document.addEventListener('keydown', handleInput, { passive: false });
+            window.setInterval(update, 1000 / config.speed);
+        };
 
-        //error message
-        document.getElementById("errorMessage").style.display = "block";
+        const resetState = () => {
+            head = { x: config.blockSize * 5, y: config.blockSize * 5 };
+            velocity = { x: 0, y: 0 };
+            body = [];
+            food = { x: 0, y: 0 };
+            gameOver = false;
+        };
 
-    }
-    else {
+        const update = () => {
+            if (gameOver) {
+                return;
+            }
 
-        //hide textboxes
-        document.getElementById("textbox1").style.display = "none";
-        document.getElementById("textbox2").style.display = "none";
-        document.getElementById("textbox3").style.display = "none";
-        document.querySelector("button").style.display = "none";
+            clearBoard();
+            drawFood();
+            handleFoodCollision();
+            moveBody();
+            moveHead();
+            drawSnake();
+            evaluateGameState();
+        };
 
-        //blend in thank you message
+        const clearBoard = () => {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = '#000000';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+        };
 
-        document.getElementById("thankYouMessage").style.display = "block";
-        document.getElementById("errorMessage").style.display = "none"
-    }
+        const drawFood = () => {
+            context.fillStyle = '#ff0000';
+            context.fillRect(food.x, food.y, config.blockSize, config.blockSize);
+        };
 
-}
+        const handleFoodCollision = () => {
+            if (head.x === food.x && head.y === food.y) {
+                body.push([food.x, food.y]);
+                placeFood();
+            }
+        };
 
-//loggin into account
+        const moveBody = () => {
+            for (let index = body.length - 1; index > 0; index -= 1) {
+                body[index] = [...body[index - 1]];
+            }
+            if (body.length) {
+                body[0] = [head.x, head.y];
+            }
+        };
 
-function logIn() {
-    if (document.getElementById("textbox1").value == "" ||
-        document.getElementById("textbox2").value == "") {
-        document.getElementById("textbox1").style.borderColor = "red";
-        document.getElementById("textbox2").style.borderColor = "red";
+        const moveHead = () => {
+            head.x += velocity.x * config.blockSize;
+            head.y += velocity.y * config.blockSize;
+        };
 
-        // show error message
+        const drawSnake = () => {
+            context.fillStyle = '#00ff00';
+            context.fillRect(head.x, head.y, config.blockSize, config.blockSize);
+            context.fillStyle = '#00ff00';
+            body.forEach(([x, y]) => {
+                context.fillRect(x, y, config.blockSize, config.blockSize);
+            });
+        };
 
-        document.getElementById("errorMessage").style.display = "block";
-    }
-    if (document.getElementById("textbox1").value != "" &&
-        document.getElementById("textbox2").value != "") {
-        document.getElementById("textbox1").style.display = "none";
-        document.getElementById("textbox2").style.display = "none";
-        document.querySelector("button").style.display = "none";
-        document.getElementById("logInMessage").style.display = "block";
-        document.getElementById("errorMessage").style.display = "none"
-    }
-}
+        const evaluateGameState = () => {
+            if (isOutOfBounds(head) || isSelfCollision()) {
+                gameOver = true;
+                window.alert('Game Over');
+            }
+        };
 
+        const isOutOfBounds = ({ x, y }) => {
+            return x < 0
+                || x >= config.columns * config.blockSize
+                || y < 0
+                || y >= config.rows * config.blockSize;
+        };
 
+        const isSelfCollision = () => {
+            return body.some(([x, y]) => x === head.x && y === head.y);
+        };
+
+        const handleInput = (event) => {
+            if (!ARROW_KEYS.includes(event.code)) {
+                return;
+            }
+
+            event.preventDefault();
+
+            switch (event.code) {
+                case 'ArrowUp':
+                    if (velocity.y !== 1) {
+                        velocity.x = 0;
+                        velocity.y = -1;
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (velocity.y !== -1) {
+                        velocity.x = 0;
+                        velocity.y = 1;
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (velocity.x !== 1) {
+                        velocity.x = -1;
+                        velocity.y = 0;
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (velocity.x !== -1) {
+                        velocity.x = 1;
+                        velocity.y = 0;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        const placeFood = () => {
+            food.x = Math.floor(Math.random() * config.columns) * config.blockSize;
+            food.y = Math.floor(Math.random() * config.rows) * config.blockSize;
+        };
+
+        return { init };
+    })();
+
+    const ContactForm = (() => {
+        let nameField;
+        let orderField;
+        let messageField;
+        let submitButton;
+        let thankYouMessage;
+        let errorMessage;
+
+        const init = () => {
+            nameField = document.getElementById('textbox1');
+            orderField = document.getElementById('textbox2');
+            messageField = document.getElementById('textbox3');
+            submitButton = document.getElementById('contactSubmit');
+            thankYouMessage = document.getElementById('thankYouMessage');
+            errorMessage = document.getElementById('errorMessage');
+
+            if (!nameField || !messageField || !submitButton) {
+                return;
+            }
+
+            resetForm();
+            submitButton.addEventListener('click', handleSubmit);
+            [nameField, orderField, messageField].forEach((field) => {
+                if (!field) {
+                    return;
+                }
+                field.addEventListener('input', () => handleInput(field));
+            });
+        };
+
+        const resetForm = () => {
+            [nameField, orderField, messageField].forEach((field) => {
+                if (!field) {
+                    return;
+                }
+                field.value = '';
+                toggleInputError(field, false);
+                showElement(field);
+            });
+            hideMessage(errorMessage);
+            hideMessage(thankYouMessage);
+            showElement(submitButton);
+        };
+
+        const handleInput = (field) => {
+            toggleInputError(field, false);
+            hideMessage(errorMessage);
+        };
+
+        const handleSubmit = () => {
+            const hasName = Boolean(nameField.value.trim());
+            const hasMessage = Boolean(messageField.value.trim());
+
+            toggleInputError(nameField, !hasName);
+            toggleInputError(messageField, !hasMessage);
+
+            if (!hasName || !hasMessage) {
+                showMessage(errorMessage);
+                return;
+            }
+
+            [nameField, orderField, messageField].forEach(hideElement);
+            hideElement(submitButton);
+            showMessage(thankYouMessage);
+            hideMessage(errorMessage);
+        };
+
+        return { init };
+    })();
+
+    const LoginForm = (() => {
+        let emailField;
+        let passwordField;
+        let submitButton;
+        let successMessage;
+        let errorMessage;
+
+        const init = () => {
+            emailField = document.getElementById('textbox1');
+            passwordField = document.getElementById('textbox2');
+            submitButton = document.getElementById('loginSubmit');
+            successMessage = document.getElementById('logInMessage');
+            errorMessage = document.getElementById('errorMessage');
+
+            if (!emailField || !passwordField || !submitButton) {
+                return;
+            }
+
+            resetForm();
+            submitButton.addEventListener('click', handleSubmit);
+            [emailField, passwordField].forEach((field) => {
+                field.addEventListener('input', () => handleInput(field));
+            });
+        };
+
+        const resetForm = () => {
+            [emailField, passwordField].forEach((field) => {
+                field.value = '';
+                toggleInputError(field, false);
+                showElement(field);
+            });
+            hideMessage(successMessage);
+            hideMessage(errorMessage);
+            showElement(submitButton);
+        };
+
+        const handleInput = (field) => {
+            toggleInputError(field, false);
+            hideMessage(errorMessage);
+        };
+
+        const handleSubmit = () => {
+            const hasEmail = Boolean(emailField.value.trim());
+            const hasPassword = Boolean(passwordField.value.trim());
+
+            toggleInputError(emailField, !hasEmail);
+            toggleInputError(passwordField, !hasPassword);
+
+            if (!hasEmail || !hasPassword) {
+                showMessage(errorMessage);
+                return;
+            }
+
+            [emailField, passwordField].forEach(hideElement);
+            hideElement(submitButton);
+            showMessage(successMessage);
+            hideMessage(errorMessage);
+        };
+
+        return { init };
+    })();
+})();

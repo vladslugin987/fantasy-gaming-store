@@ -1,66 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>
-        MY STORE
-    </title>
-    <!-- Importing the css file-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MY STORE</title>
+    <!-- Importing the CSS file -->
     <link rel="stylesheet" href="../css/styles.css">
-    <!-- Importing the Oswald and the Zen Dots font -->
+    <!-- Importing the Oswald and the Zen Dots fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Oswald&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Zen+Dots&display=swap" rel="stylesheet">
-    <!-- Importing the javascript file-->
-    <script src="../js/scripts.js"></script>
+    <!-- Importing the JavaScript file -->
+    <script src="../js/scripts.js" defer></script>
 </head>
 
 <body class="contactBody">
-    <!-- Navigation Bar-->
+    <!-- Navigation Bar -->
     <nav>
         <a href="home.html">Home</a>
-        <a href="logIn.html"> Log In</a>
+        <a href="logIn.html">Log In</a>
         <a href="about.html">About Us</a>
         <a href="contact.html">Contact Us</a>
     </nav>
-    <!-- main part-->
     <center>
         <div class="container" id="container">
             <main>
                 <div class="heading">
                     <h1>Contact Us</h1>
                 </div>
-                Is there a problem with your shipping? Or is the item you purchased damaged? No matter what
-                you can always count on our support. Be it a complaint, a question regarding a product, your purchase
-                or a simple suggestion how we can improve our services.
-                We are looking forward to your message!
-                <br>
-
-                <div class="errorMessage" id="errorMessage">
+                <p>Is there a problem with your shipping? Did a purchased item arrive damaged? Whatever the issue, you
+                    can always count on our support. Whether it is a complaint, a question about a product or order, or a
+                    suggestion on how we can improve, we are looking forward to your message!</p>
+                <div class="errorMessage" id="errorMessage" aria-live="polite">
                     <p>Please fill in the required fields.</p>
                 </div>
-
-                <input type="text" id="textbox1" placeholder="Please enter your name or mail-address" required>
-                <br>
-
-                <input type="email" id="textbox2" placeholder="shipping number (optional)">
-                <br>
-
-                <textarea id="textbox3" placeholder="Your Message" rows="4" cols="50" required></textarea>
-                <br>
-
+                <input class="input-field" type="text" id="textbox1"
+                    placeholder="Please enter your name or email address" autocomplete="name" required>
+                <input class="input-field" type="text" id="textbox2" placeholder="Shipping number (optional)"
+                    autocomplete="off">
+                <textarea class="input-field textarea-field" id="textbox3" placeholder="Your Message" rows="4"
+                    required></textarea>
                 <div class="thankYouMessage" id="thankYouMessage">
-                    <h1>Thank you for your Message!</h1>
+                    <h1>Thank you for your message!</h1>
                 </div>
-
-                <button onclick="sendMessage()">Send</button>
-
+                <button id="contactSubmit" type="button">Send</button>
             </main>
         </div>
     </center>
     <footer class="footerWhite">
         2024 Sofie Halbedl. All rights reserved.
     </footer>
-
 </body>
 
 </html>
